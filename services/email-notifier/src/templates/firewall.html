@@ -1,0 +1,111 @@
+{% extends "base.html" %}
+
+{% block title %}[{{ alert.severity | upper }}] Critical Firewall Event: {{ alert.title }}{% endblock %}
+
+{% block content %}
+  <!-- Alert Title -->
+  <div class="section-label">Critical Firewall Event</div>
+  <div class="alert-title">{{ alert.title }}</div>
+  <span class="severity-badge severity-{{ alert.severity | lower }}" style="margin-bottom:20px;display:inline-block;">
+    {{ alert.severity | upper }} Severity
+  </span>
+
+  <div class="divider"></div>
+
+  <!-- Rule triggered highlight -->
+  <div class="highlight-box" style="margin-bottom:20px;border-color:#dc2626;">
+    <div class="label" style="color:#f87171;">&#128721; Firewall Rule Triggered</div>
+    <div class="value secondary" style="font-size:18px;color:#f87171;word-break:break-word;">
+      {{ alert.metadata.get('event_action', alert.metadata.get('firewall_rule', 'Unknown Rule')) }}
+    </div>
+  </div>
+
+  <!-- Source / Action / Destination row -->
+  <div style="display:flex;gap:8px;margin-bottom:24px;flex-wrap:wrap;align-items:center;">
+    <div class="highlight-box" style="flex:1;min-width:140px;">
+      <div class="label">Source</div>
+      <div class="value secondary" style="font-size:14px;font-family:'Courier New',Courier,monospace;">
+        {{ alert.metadata.get('source_ip', 'Unknown') }}
+      </div>
+    </div>
+    <div style="color:#e94560;font-size:20px;font-weight:900;padding:0 4px;">&#8594;</div>
+    <div class="highlight-box" style="flex:1;min-width:120px;border-color:#dc2626;background:rgba(220,38,38,0.08);">
+      <div class="label" style="color:#f87171;">Action</div>
+      <div class="value secondary" style="font-size:14px;color:#f87171;text-transform:uppercase;">
+        {{ alert.metadata.get('action_taken', alert.metadata.get('action', 'BLOCK')) }}
+      </div>
+    </div>
+    <div style="color:#e94560;font-size:20px;font-weight:900;padding:0 4px;">&#8594;</div>
+    <div class="highlight-box" style="flex:1;min-width:140px;">
+      <div class="label">Destination</div>
+      <div class="value secondary" style="font-size:14px;font-family:'Courier New',Courier,monospace;">
+        {{ alert.metadata.get('destination_ip', 'Unknown') }}
+      </div>
+    </div>
+  </div>
+
+  <!-- Description -->
+  <div class="section-label">Description</div>
+  <p class="alert-description">{{ alert.description }}</p>
+
+  <div class="divider"></div>
+
+  <!-- Alert Properties -->
+  <div class="section-label" style="margin-bottom:12px;">Event Details</div>
+  <div class="info-grid">
+    <div class="info-row">
+      <div class="info-label">Alert ID</div>
+      <div class="info-value">{{ alert.id }}</div>
+    </div>
+    <div class="info-row">
+      <div class="info-label">Rule</div>
+      <div class="info-value">{{ alert.rule_name }}</div>
+    </div>
+    <div class="info-row">
+      <div class="info-label">Firewall Rule</div>
+      <div class="info-value">{{ alert.metadata.get('event_action', alert.metadata.get('firewall_rule', 'Unknown')) }}</div>
+    </div>
+    <div class="info-row">
+      <div class="info-label">Source IP</div>
+      <div class="info-value">{{ alert.metadata.get('source_ip', 'Unknown') }}</div>
+    </div>
+    <div class="info-row">
+      <div class="info-label">Destination IP</div>
+      <div class="info-value">{{ alert.metadata.get('destination_ip', 'Unknown') }}</div>
+    </div>
+    <div class="info-row">
+      <div class="info-label">Action Taken</div>
+      <div class="info-value">{{ alert.metadata.get('action_taken', alert.metadata.get('action', 'Unknown')) }}</div>
+    </div>
+    <div class="info-row">
+      <div class="info-label">Event Count</div>
+      <div class="info-value">{{ alert.event_count }}</div>
+    </div>
+    <div class="info-row">
+      <div class="info-label">Detection Time</div>
+      <div class="info-value">{{ alert.created_at }}</div>
+    </div>
+  </div>
+
+  <div class="divider"></div>
+
+  <a class="cta-button"
+     href="/api/v1/logs?event.dataset=unifi.firewall&source.ip={{ alert.metadata.get('source_ip', '') }}">
+    &#128269; View Firewall Logs
+  </a>
+
+  {% if alert.metadata %}
+  <div class="divider"></div>
+  <div class="section-label" style="margin-bottom:12px;">Full Metadata</div>
+  <table class="metadata-table">
+    <thead>
+      <tr><th style="width:40%;">Field</th><th>Value</th></tr>
+    </thead>
+    <tbody>
+      {% for key, value in alert.metadata.items() %}
+      <tr><td>{{ key }}</td><td>{{ value }}</td></tr>
+      {% endfor %}
+    </tbody>
+  </table>
+  {% endif %}
+{% endblock %}

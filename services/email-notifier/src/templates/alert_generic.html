@@ -1,0 +1,80 @@
+{% extends "base.html" %}
+
+{% block title %}[{{ alert.severity | upper }}] {{ alert.title }}{% endblock %}
+
+{% block content %}
+  <!-- Alert Title -->
+  <div class="section-label">Alert Details</div>
+  <div class="alert-title">{{ alert.title }}</div>
+
+  <!-- Severity Badge inline -->
+  <span class="severity-badge severity-{{ alert.severity | lower }}" style="margin-bottom:20px;display:inline-block;">
+    {{ alert.severity | upper }} Severity
+  </span>
+
+  <div class="divider"></div>
+
+  <!-- Description -->
+  <div class="section-label">Description</div>
+  <p class="alert-description">{{ alert.description }}</p>
+
+  <!-- Key metrics row -->
+  <div style="display:flex;gap:16px;margin-bottom:24px;flex-wrap:wrap;">
+    <div class="highlight-box" style="flex:1;min-width:140px;">
+      <div class="label">Event Count</div>
+      <div class="value">{{ alert.event_count }}</div>
+    </div>
+    <div class="highlight-box" style="flex:2;min-width:200px;">
+      <div class="label">Rule</div>
+      <div class="value secondary">{{ alert.rule_name }}</div>
+    </div>
+  </div>
+
+  <div class="divider"></div>
+
+  <!-- Core alert properties -->
+  <div class="section-label" style="margin-bottom:12px;">Alert Properties</div>
+  <div class="info-grid">
+    <div class="info-row">
+      <div class="info-label">Alert ID</div>
+      <div class="info-value">{{ alert.id }}</div>
+    </div>
+    <div class="info-row">
+      <div class="info-label">Rule ID</div>
+      <div class="info-value">{{ alert.rule_id }}</div>
+    </div>
+    <div class="info-row">
+      <div class="info-label">Severity</div>
+      <div class="info-value">{{ alert.severity | upper }}</div>
+    </div>
+    <div class="info-row">
+      <div class="info-label">Events Matched</div>
+      <div class="info-value">{{ alert.event_count }}</div>
+    </div>
+    <div class="info-row">
+      <div class="info-label">Detection Time</div>
+      <div class="info-value">{{ alert.created_at }}</div>
+    </div>
+  </div>
+
+  {% if alert.metadata %}
+  <div class="divider"></div>
+  <div class="section-label" style="margin-bottom:12px;">Event Metadata</div>
+  <table class="metadata-table">
+    <thead>
+      <tr>
+        <th style="width:40%;">Field</th>
+        <th>Value</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for key, value in alert.metadata.items() %}
+      <tr>
+        <td>{{ key }}</td>
+        <td>{{ value }}</td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+  {% endif %}
+{% endblock %}

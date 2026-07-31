@@ -1,0 +1,405 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<project>
+    <name>Enterprise UniFi SIEM Platform</name>
+
+    <description>
+        Build a production-grade, enterprise-level SIEM platform focused on
+        UniFi ecosystems using Docker Compose. The solution must collect,
+        normalize, enrich, correlate, analyze, alert, and visualize all
+        UniFi activity logs from UniFi Network and UDM/UDM Pro devices.
+
+        The architecture, code quality, infrastructure, security posture,
+        observability, and operational standards must reflect the work of
+        a 10+ year senior full-stack engineer, DevSecOps engineer,
+        and security architect.
+
+        The implementation must be modular, maintainable, scalable,
+        secure-by-default, observable, and production-ready.
+    </description>
+
+    <reference>
+        https://github.com/Ward-Software-Defined-Systems/UniFI-Network-SIEM
+    </reference>
+
+    <technical_requirements>
+
+        <architecture>
+            <deployment_model>Docker Compose</deployment_model>
+
+            <containers>
+                <container>SIEM Core</container>
+                <container>Syslog Ingestion</container>
+                <container>Parser Pipeline</container>
+                <container>Search Engine</container>
+                <container>Dashboard/UI</container>
+                <container>Alerting Engine</container>
+                <container>Email Notification Service</container>
+                <container>Reverse Proxy</container>
+                <container>TLS Certificate Management</container>
+                <container>Monitoring Stack</container>
+            </containers>
+
+            <design_principles>
+                <principle>Clean Architecture</principle>
+                <principle>Domain Driven Design</principle>
+                <principle>SOLID Principles</principle>
+                <principle>Secure by Default</principle>
+                <principle>Immutable Infrastructure</principle>
+                <principle>Infrastructure as Code</principle>
+                <principle>12-Factor App Methodology</principle>
+            </design_principles>
+        </architecture>
+
+        <supported_devices>
+            <device>UniFi Network</device>
+            <device>UDM</device>
+            <device>UDM Pro</device>
+        </supported_devices>
+
+        <syslog_ingestion>
+
+            <protocols>
+                <protocol>UDP 514</protocol>
+            </protocols>
+
+            <requirements>
+                <requirement>High-performance log ingestion</requirement>
+                <requirement>Packet loss mitigation</requirement>
+                <requirement>Asynchronous processing</requirement>
+                <requirement>Log buffering</requirement>
+                <requirement>Retry queues</requirement>
+                <requirement>Backpressure handling</requirement>
+                <requirement>Structured parsing</requirement>
+                <requirement>Timestamp normalization</requirement>
+            </requirements>
+
+            <log_types>
+                <log>Firewall Logs</log>
+                <log>Authentication Logs</log>
+                <log>VPN Logs</log>
+                <log>Threat Management Logs</log>
+                <log>IDS/IPS Logs</log>
+                <log>DHCP Logs</log>
+                <log>DNS Logs</log>
+                <log>Admin Activity Logs</log>
+                <log>Client Association Logs</log>
+                <log>Traffic Logs</log>
+                <log>System Events</log>
+                <log>WAN Events</log>
+                <log>Port Events</log>
+                <log>Wireless Events</log>
+                <log>Device Adoption Events</log>
+            </log_types>
+
+        </syslog_ingestion>
+
+        <siem_features>
+
+            <normalization>
+                <schema>ECS</schema>
+                <format>JSON</format>
+            </normalization>
+
+            <parsing>
+                <requirement>Automatic field extraction</requirement>
+                <requirement>Regex pipelines</requirement>
+                <requirement>GeoIP enrichment</requirement>
+                <requirement>Threat intelligence enrichment</requirement>
+                <requirement>User-agent parsing</requirement>
+                <requirement>MAC vendor lookup</requirement>
+            </parsing>
+
+            <correlation_engine>
+                <feature>Brute force detection</feature>
+                <feature>Rogue device detection</feature>
+                <feature>Port scan detection</feature>
+                <feature>Excessive failed logins</feature>
+                <feature>VPN anomaly detection</feature>
+                <feature>Threat management correlation</feature>
+                <feature>Lateral movement indicators</feature>
+                <feature>Administrative abuse detection</feature>
+            </correlation_engine>
+
+            <search_engine>
+                <requirement>Fast indexing</requirement>
+                <requirement>Full-text search</requirement>
+                <requirement>Advanced filtering</requirement>
+                <requirement>Time-series optimization</requirement>
+            </search_engine>
+
+        </siem_features>
+
+        <security>
+
+            <tls>
+                <enabled>true</enabled>
+                <internal_tls>true</internal_tls>
+                <self_signed_support>true</self_signed_support>
+                <letsencrypt_support>true</letsencrypt_support>
+            </tls>
+
+            <authentication>
+                <rbac>true</rbac>
+                <api_keys>true</api_keys>
+                <session_management>true</session_management>
+            </authentication>
+
+            <hardening>
+                <feature>Container isolation</feature>
+                <feature>Read-only containers where possible</feature>
+                <feature>Least privilege permissions</feature>
+                <feature>Secrets management</feature>
+                <feature>Non-root containers</feature>
+                <feature>Secure headers</feature>
+                <feature>Rate limiting</feature>
+            </hardening>
+
+            <audit_logging>
+                <enabled>true</enabled>
+            </audit_logging>
+
+        </security>
+
+        <dashboard>
+
+            <ui_requirements>
+                <requirement>Modern responsive UI</requirement>
+                <requirement>Dark mode</requirement>
+                <requirement>Mobile-friendly</requirement>
+                <requirement>Real-time updates</requirement>
+                <requirement>Live log streaming</requirement>
+            </ui_requirements>
+
+            <dashboard_widgets>
+                <widget>Threat Overview</widget>
+                <widget>Top Source IPs</widget>
+                <widget>Blocked Connections</widget>
+                <widget>Firewall Activity</widget>
+                <widget>Failed Authentication Attempts</widget>
+                <widget>VPN Sessions</widget>
+                <widget>Wireless Client Activity</widget>
+                <widget>GeoIP Attack Map</widget>
+                <widget>Bandwidth Analysis</widget>
+                <widget>Threat Intelligence Matches</widget>
+                <widget>System Health</widget>
+            </dashboard_widgets>
+
+        </dashboard>
+
+        <alerting>
+
+            <email>
+                <enabled>true</enabled>
+                <smtp_support>true</smtp_support>
+                <html_templates>true</html_templates>
+            </email>
+
+            <alert_rules>
+                <rule>Multiple failed login attempts</rule>
+                <rule>Threat management trigger</rule>
+                <rule>Rogue AP detection</rule>
+                <rule>VPN anomalies</rule>
+                <rule>Excessive bandwidth spikes</rule>
+                <rule>Offline UniFi devices</rule>
+                <rule>Critical firewall events</rule>
+            </alert_rules>
+
+            <features>
+                <feature>Rule-based alerting</feature>
+                <feature>Alert throttling</feature>
+                <feature>Deduplication</feature>
+                <feature>Severity levels</feature>
+                <feature>Escalation support</feature>
+            </features>
+
+        </alerting>
+
+        <observability>
+
+            <monitoring>
+                <feature>Prometheus metrics</feature>
+                <feature>Container health checks</feature>
+                <feature>Resource utilization tracking</feature>
+                <feature>Log pipeline visibility</feature>
+            </monitoring>
+
+            <logging>
+                <feature>Structured application logs</feature>
+                <feature>Centralized container logging</feature>
+                <feature>Error tracing</feature>
+            </logging>
+
+        </observability>
+
+        <storage>
+
+            <retention>
+                <days>90</days>
+            </retention>
+
+            <features>
+                <feature>Compression</feature>
+                <feature>Log rotation</feature>
+                <feature>Index lifecycle management</feature>
+                <feature>Snapshot backups</feature>
+            </features>
+
+        </storage>
+
+        <performance>
+
+            <requirements>
+                <requirement>Support high event throughput</requirement>
+                <requirement>Efficient memory usage</requirement>
+                <requirement>Low-latency search</requirement>
+                <requirement>Horizontal scalability readiness</requirement>
+            </requirements>
+
+        </performance>
+
+        <docker_requirements>
+
+            <compose>
+                <version>3.9+</version>
+            </compose>
+
+            <requirements>
+                <requirement>Persistent volumes</requirement>
+                <requirement>Automatic restart policies</requirement>
+                <requirement>Environment variable configuration</requirement>
+                <requirement>Health checks</requirement>
+                <requirement>Internal Docker networking</requirement>
+                <requirement>Secrets support</requirement>
+            </requirements>
+
+        </docker_requirements>
+
+        <developer_requirements>
+
+            <backend>
+                <requirement>Production-grade backend architecture</requirement>
+                <requirement>Strong typing</requirement>
+                <requirement>Modular services</requirement>
+                <requirement>API-first design</requirement>
+            </backend>
+
+            <frontend>
+                <requirement>Modern component-based architecture</requirement>
+                <requirement>State management</requirement>
+                <requirement>Real-time websocket updates</requirement>
+            </frontend>
+
+            <code_quality>
+                <requirement>Comprehensive documentation</requirement>
+                <requirement>Linting</requirement>
+                <requirement>Formatting standards</requirement>
+                <requirement>Unit testing</requirement>
+                <requirement>Integration testing</requirement>
+                <requirement>Security scanning</requirement>
+            </code_quality>
+
+        </developer_requirements>
+
+        <deliverables>
+
+            <deliverable>Complete Docker Compose Stack</deliverable>
+            <deliverable>Production-ready Configuration Files</deliverable>
+            <deliverable>Reverse Proxy Configuration</deliverable>
+            <deliverable>TLS Configuration</deliverable>
+            <deliverable>SIEM Parsing Pipelines</deliverable>
+            <deliverable>Correlation Rules</deliverable>
+            <deliverable>Email Alert Templates</deliverable>
+            <deliverable>Dashboard Templates</deliverable>
+            <deliverable>Environment Variable Examples</deliverable>
+            <deliverable>Backup and Restore Scripts</deliverable>
+            <deliverable>Monitoring Configuration</deliverable>
+            <deliverable>Comprehensive README</deliverable>
+            <deliverable>Architecture Documentation</deliverable>
+            <deliverable>Deployment Guide</deliverable>
+            <deliverable>Troubleshooting Guide</deliverable>
+
+        </deliverables>
+
+    </technical_requirements>
+
+    <implementation_style>
+
+        <coding_expectations>
+            The generated solution must reflect senior-level engineering
+            practices equivalent to a developer with more than 10 years
+            of experience in:
+        </coding_expectations>
+
+        <expertise>
+            <area>Full Stack Engineering</area>
+            <area>DevSecOps</area>
+            <area>Cloud Infrastructure</area>
+            <area>SOC Engineering</area>
+            <area>Detection Engineering</area>
+            <area>Container Security</area>
+            <area>Observability Engineering</area>
+            <area>Enterprise Architecture</area>
+        </expertise>
+
+        <requirements>
+            <requirement>No toy examples</requirement>
+            <requirement>No placeholder logic</requirement>
+            <requirement>No insecure defaults</requirement>
+            <requirement>No simplified architecture</requirement>
+            <requirement>Production-grade implementation only</requirement>
+        </requirements>
+
+    </implementation_style>
+ <execution_instructions>
+
+    <planning_directive>
+      This is a very long task, so it may be beneficial to plan out your work clearly.
+      It's encouraged to spend your entire output context working on the task - just make sure you don't run out of context with significant uncommitted work.
+      Continue working systematically until you have completed this task.
+    </planning_directive>
+
+    <investigate_before_answering>
+      Never speculate about code you have not opened.
+      If the user references a specific file, you MUST read the file before answering.
+      Make sure to investigate and read relevant files BEFORE answering questions about the codebase.
+      Never make any claims about code before investigating unless you are certain of the correct answer - give grounded and hallucination-free answers.
+    </investigate_before_answering>
+
+    <avoid_over_engineering>
+      Only make changes that are directly requested or clearly necessary. Keep solutions simple and focused:
+
+      - Scope: Don't add features, refactor code, or make "improvements" beyond what was asked.
+        A bug fix doesn't need surrounding code cleaned up. A simple feature doesn't need extra configurability.
+
+      - Documentation: Don't add docstrings, comments, or type annotations to code you didn't change.
+        Only add comments where the logic isn't self-evident.
+
+      - Defensive coding: Don't add error handling, fallbacks, or validation for scenarios that can't happen.
+        Trust internal code and framework guarantees. Only validate at system boundaries (user input, external APIs).
+
+      - Abstractions: Don't create helpers, utilities, or abstractions for one-time operations.
+        Don't design for hypothetical future requirements. The right amount of complexity is the minimum needed for the current task.
+    </avoid_over_engineering>
+
+    <implementation_guidelines>
+      - Use standard tools only.
+      - Do not create helper scripts or workarounds unless explicitly required.
+      - Do not hard-code values for specific test cases.
+      - Implement general, correct logic for all valid inputs.
+      - Focus on correctness, not shortcut optimizations for tests.
+      - If requirements are infeasible or contradictory, explicitly state it instead of bypassing them.
+      - Prioritize maintainability, correctness, and clarity over cleverness.
+    </implementation_guidelines>
+
+  </execution_instructions>
+
+  <success_criteria>
+    - resilient against API failures
+    - secure credential handling
+    - no UI freezing or desync
+    - consistent state management
+    - production-grade maintainability
+  </success_criteria>
+
+</project>

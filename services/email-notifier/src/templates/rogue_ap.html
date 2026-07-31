@@ -1,0 +1,99 @@
+{% extends "base.html" %}
+
+{% block title %}[{{ alert.severity | upper }}] Rogue AP: {{ alert.title }}{% endblock %}
+
+{% block content %}
+  <!-- Alert Title -->
+  <div class="section-label">Rogue Access Point Detected</div>
+  <div class="alert-title">{{ alert.title }}</div>
+  <span class="severity-badge severity-{{ alert.severity | lower }}" style="margin-bottom:20px;display:inline-block;">
+    {{ alert.severity | upper }} Severity
+  </span>
+
+  <div class="divider"></div>
+
+  <!-- MAC address highlight -->
+  <div class="highlight-box" style="margin-bottom:20px;">
+    <div class="label">&#128225; Rogue Device MAC Address</div>
+    <div class="value" style="font-family:'Courier New',Courier,monospace;font-size:22px;letter-spacing:2px;">
+      {{ alert.metadata.get('host_mac', alert.metadata.get('mac_address', 'Unknown')) }}
+    </div>
+  </div>
+
+  <!-- Location and time row -->
+  <div style="display:flex;gap:16px;margin-bottom:24px;flex-wrap:wrap;">
+    <div class="highlight-box" style="flex:2;min-width:200px;">
+      <div class="label">Detected Location / SSID</div>
+      <div class="value secondary" style="font-size:15px;word-break:break-word;">
+        {{ alert.metadata.get('network_name', alert.metadata.get('location', 'Unknown')) }}
+      </div>
+    </div>
+    <div class="highlight-box" style="flex:1;min-width:140px;">
+      <div class="label">Events</div>
+      <div class="value">{{ alert.event_count }}</div>
+    </div>
+  </div>
+
+  <!-- Description -->
+  <div class="section-label">Description</div>
+  <p class="alert-description">{{ alert.description }}</p>
+
+  <div class="divider"></div>
+
+  <!-- Alert Properties -->
+  <div class="section-label" style="margin-bottom:12px;">Alert Properties</div>
+  <div class="info-grid">
+    <div class="info-row">
+      <div class="info-label">Alert ID</div>
+      <div class="info-value">{{ alert.id }}</div>
+    </div>
+    <div class="info-row">
+      <div class="info-label">Rule</div>
+      <div class="info-value">{{ alert.rule_name }}</div>
+    </div>
+    <div class="info-row">
+      <div class="info-label">MAC Address</div>
+      <div class="info-value">{{ alert.metadata.get('host_mac', alert.metadata.get('mac_address', 'Unknown')) }}</div>
+    </div>
+    <div class="info-row">
+      <div class="info-label">Location / SSID</div>
+      <div class="info-value">{{ alert.metadata.get('network_name', alert.metadata.get('location', 'Unknown')) }}</div>
+    </div>
+    {% if alert.metadata.get('source_ip') %}
+    <div class="info-row">
+      <div class="info-label">IP Address</div>
+      <div class="info-value">{{ alert.metadata.get('source_ip') }}</div>
+    </div>
+    {% endif %}
+    <div class="info-row">
+      <div class="info-label">Detection Time</div>
+      <div class="info-value">{{ alert.created_at }}</div>
+    </div>
+  </div>
+
+  <div class="divider"></div>
+
+  <p style="font-size:13px;color:#8b949e;margin-bottom:12px;">
+    A device not registered in the network inventory is broadcasting on a monitored wireless band.
+    Verify whether this is an authorised device before taking action.
+  </p>
+  <a class="cta-button"
+     href="/api/v1/logs?host.mac={{ alert.metadata.get('host_mac', '') }}&event.dataset=unifi.wireless">
+    &#128269; Investigate Wireless Events
+  </a>
+
+  {% if alert.metadata %}
+  <div class="divider"></div>
+  <div class="section-label" style="margin-bottom:12px;">Full Metadata</div>
+  <table class="metadata-table">
+    <thead>
+      <tr><th style="width:40%;">Field</th><th>Value</th></tr>
+    </thead>
+    <tbody>
+      {% for key, value in alert.metadata.items() %}
+      <tr><td>{{ key }}</td><td>{{ value }}</td></tr>
+      {% endfor %}
+    </tbody>
+  </table>
+  {% endif %}
+{% endblock %}

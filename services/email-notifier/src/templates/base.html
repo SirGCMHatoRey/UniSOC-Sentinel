@@ -1,0 +1,328 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+  <title>{% block title %}UniSOC Sentinel Alert{% endblock %}</title>
+  <style>
+    /* Reset */
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      background-color: #0d0d1a;
+      font-family: 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+      color: #c9d1d9;
+      -webkit-font-smoothing: antialiased;
+    }
+    a { color: #58a6ff; text-decoration: none; }
+    a:hover { text-decoration: underline; }
+
+    /* Outer wrapper */
+    .wrapper {
+      width: 100%;
+      background-color: #0d0d1a;
+      padding: 32px 16px;
+    }
+
+    /* Card container */
+    .container {
+      max-width: 620px;
+      margin: 0 auto;
+      background-color: #1a1a2e;
+      border-radius: 8px;
+      overflow: hidden;
+      border: 1px solid #30363d;
+      box-shadow: 0 4px 24px rgba(0, 0, 0, 0.6);
+    }
+
+    /* Header */
+    .header {
+      background: linear-gradient(135deg, #16213e 0%, #0f3460 100%);
+      padding: 24px 32px;
+      border-bottom: 2px solid #e94560;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    .header-brand {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+    .header-logo {
+      width: 40px;
+      height: 40px;
+      background: #e94560;
+      border-radius: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 20px;
+      font-weight: 900;
+      color: #ffffff;
+      letter-spacing: -1px;
+      flex-shrink: 0;
+    }
+    .header-title {
+      font-size: 18px;
+      font-weight: 700;
+      color: #ffffff;
+      letter-spacing: 0.5px;
+    }
+    .header-subtitle {
+      font-size: 11px;
+      color: #8b949e;
+      letter-spacing: 1px;
+      text-transform: uppercase;
+      margin-top: 2px;
+    }
+
+    /* Severity badge */
+    .severity-badge {
+      display: inline-block;
+      padding: 4px 12px;
+      border-radius: 20px;
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: 1px;
+      text-transform: uppercase;
+    }
+    .severity-critical { background-color: rgba(220, 38, 38, 0.2); color: #f87171; border: 1px solid #dc2626; }
+    .severity-high     { background-color: rgba(234, 88, 12, 0.2); color: #fb923c; border: 1px solid #ea580c; }
+    .severity-medium   { background-color: rgba(202, 138, 4, 0.2);  color: #fbbf24; border: 1px solid #ca8a04; }
+    .severity-low      { background-color: rgba(37, 99, 235, 0.2);  color: #60a5fa; border: 1px solid #2563eb; }
+    .severity-info     { background-color: rgba(75, 85, 99, 0.2);   color: #9ca3af; border: 1px solid #4b5563; }
+
+    /* Alert banner (colored top strip based on severity) */
+    .alert-banner {
+      padding: 16px 32px;
+      font-size: 13px;
+      font-weight: 600;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    .alert-banner.critical { background-color: rgba(220, 38, 38, 0.1); border-left: 4px solid #dc2626; }
+    .alert-banner.high     { background-color: rgba(234, 88, 12, 0.1); border-left: 4px solid #ea580c; }
+    .alert-banner.medium   { background-color: rgba(202, 138, 4, 0.1);  border-left: 4px solid #ca8a04; }
+    .alert-banner.low      { background-color: rgba(37, 99, 235, 0.1);  border-left: 4px solid #2563eb; }
+    .alert-banner.info     { background-color: rgba(75, 85, 99, 0.1);   border-left: 4px solid #4b5563; }
+
+    /* Main content area */
+    .content {
+      padding: 28px 32px;
+    }
+
+    /* Section heading */
+    .section-label {
+      font-size: 10px;
+      font-weight: 700;
+      letter-spacing: 1.5px;
+      text-transform: uppercase;
+      color: #8b949e;
+      margin-bottom: 6px;
+    }
+
+    /* Alert title */
+    .alert-title {
+      font-size: 22px;
+      font-weight: 700;
+      color: #ffffff;
+      line-height: 1.3;
+      margin-bottom: 16px;
+    }
+
+    /* Description paragraph */
+    .alert-description {
+      font-size: 14px;
+      color: #c9d1d9;
+      line-height: 1.7;
+      margin-bottom: 24px;
+    }
+
+    /* Divider */
+    .divider {
+      height: 1px;
+      background: #30363d;
+      margin: 24px 0;
+    }
+
+    /* Key-value info grid */
+    .info-grid {
+      display: table;
+      width: 100%;
+      border-collapse: collapse;
+    }
+    .info-row {
+      display: table-row;
+    }
+    .info-label, .info-value {
+      display: table-cell;
+      padding: 8px 0;
+      border-bottom: 1px solid #21262d;
+      font-size: 13px;
+      vertical-align: top;
+    }
+    .info-label {
+      color: #8b949e;
+      font-weight: 600;
+      width: 38%;
+      padding-right: 16px;
+    }
+    .info-value {
+      color: #e6edf3;
+      font-family: 'Courier New', Courier, monospace;
+      font-size: 12px;
+      word-break: break-all;
+    }
+
+    /* Highlight box */
+    .highlight-box {
+      background-color: #161b22;
+      border: 1px solid #30363d;
+      border-radius: 6px;
+      padding: 16px 20px;
+      margin-bottom: 20px;
+    }
+    .highlight-box .label {
+      font-size: 10px;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      color: #8b949e;
+      font-weight: 600;
+      margin-bottom: 6px;
+    }
+    .highlight-box .value {
+      font-size: 28px;
+      font-weight: 700;
+      color: #e94560;
+    }
+    .highlight-box .value.secondary {
+      font-size: 18px;
+      color: #fb923c;
+    }
+
+    /* Call-to-action button */
+    .cta-button {
+      display: inline-block;
+      background-color: #e94560;
+      color: #ffffff !important;
+      font-size: 13px;
+      font-weight: 700;
+      padding: 10px 24px;
+      border-radius: 6px;
+      text-decoration: none !important;
+      letter-spacing: 0.5px;
+      margin-top: 8px;
+    }
+    .cta-button:hover {
+      background-color: #c73652;
+    }
+
+    /* Metadata table */
+    .metadata-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 12px;
+    }
+    .metadata-table th {
+      text-align: left;
+      padding: 8px 12px;
+      background-color: #161b22;
+      color: #8b949e;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.8px;
+      font-size: 10px;
+      border: 1px solid #30363d;
+    }
+    .metadata-table td {
+      padding: 8px 12px;
+      border: 1px solid #21262d;
+      color: #c9d1d9;
+      font-family: 'Courier New', Courier, monospace;
+      vertical-align: top;
+      word-break: break-all;
+    }
+    .metadata-table tr:nth-child(even) td {
+      background-color: #161b22;
+    }
+
+    /* Footer */
+    .footer {
+      background-color: #161b22;
+      border-top: 1px solid #30363d;
+      padding: 20px 32px;
+      text-align: center;
+    }
+    .footer p {
+      font-size: 11px;
+      color: #8b949e;
+      line-height: 1.6;
+    }
+    .footer .timestamp {
+      font-family: 'Courier New', Courier, monospace;
+      color: #6e7681;
+      font-size: 10px;
+    }
+
+    /* Responsive */
+    @media only screen and (max-width: 640px) {
+      .wrapper { padding: 16px 8px; }
+      .header  { padding: 16px 20px; flex-direction: column; align-items: flex-start; gap: 12px; }
+      .content { padding: 20px; }
+      .alert-title { font-size: 18px; }
+      .footer  { padding: 16px 20px; }
+    }
+  </style>
+</head>
+<body>
+<div class="wrapper">
+  <div class="container">
+
+    <!-- ===== HEADER ===== -->
+    <div class="header">
+      <div class="header-brand">
+        <div class="header-logo">U</div>
+        <div>
+          <div class="header-title">UniSOC Sentinel</div>
+          <div class="header-subtitle">Security Information &amp; Event Management</div>
+        </div>
+      </div>
+      {% block header_badge %}
+      <span class="severity-badge severity-{{ alert.severity | lower }}">
+        {{ alert.severity | upper }}
+      </span>
+      {% endblock %}
+    </div>
+
+    <!-- ===== ALERT BANNER ===== -->
+    <div class="alert-banner {{ alert.severity | lower }}">
+      <span>&#9888;</span>
+      <span>Security Alert &mdash; {{ alert.rule_name }}</span>
+    </div>
+
+    <!-- ===== MAIN CONTENT ===== -->
+    <div class="content">
+      {% block content %}{% endblock %}
+    </div>
+
+    <!-- ===== FOOTER ===== -->
+    <div class="footer">
+      <p class="timestamp">Detected: {{ alert.created_at }}</p>
+      <p style="margin-top:6px;">
+        Alert ID: <span style="font-family:monospace;color:#6e7681;">{{ alert.id }}</span>
+      </p>
+      <p style="margin-top:10px;">
+        This is an automated message from UniSOC Sentinel.
+        <strong>Do not reply to this email.</strong>
+      </p>
+      <p style="margin-top:6px;">
+        &copy; UniSOC Sentinel &mdash; Powered by your Security Operations Centre
+      </p>
+    </div>
+
+  </div>
+</div>
+</body>
+</html>

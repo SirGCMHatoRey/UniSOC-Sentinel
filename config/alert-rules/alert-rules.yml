@@ -1,0 +1,330 @@
+# =============================================================================
+# UniSOC Sentinel — Alert Rules Configuration
+# =============================================================================
+# Rules are evaluated by the alerting-engine service against the
+# siem:parsed_logs Redis stream.
+#
+# Schema per rule:
+#   id               — Stable machine-readable identifier (snake_case)
+#   name             — Human-readable rule name
+#   description      — What threat this rule detects
+#   dataset_filter   — List of ECS dataset values to match (empty = all)
+#   condition        — Matching and aggregation logic
+#     field          — ECS field to evaluate
+#     value          — Expected value (string match or numeric threshold)
+#     operator       — eq | ne | gt | gte | lt | lte | contains | regex
+#     group_by       — ECS field to group events by (for count thresholds)
+#     threshold      — Number of matching events to trigger the rule
+#     window_seconds — Rolling time window for threshold evaluation
+#   severity         — critical | high | medium | low | info
+#   dedup_key        — Template key for alert deduplication (Redis key)
+#   dedup_ttl_seconds— Seconds to suppress duplicate alerts for this key
+#   throttle_seconds — Minimum seconds between successive alerts (same key)
+#   title_template   — Alert title with {field} substitution
+#   body_template    — Alert email body with {field} substitution
+# =============================================================================
+
+rules:
+
+  # ---------------------------------------------------------------------------
+  # Rule 1 — Brute-Force / Multiple Failed Logins
+  # ---------------------------------------------------------------------------
+  - id: multiple_failed_logins
+    name: Multiple Failed Login Attempts
+    description: >
+      Detects brute-force login attempts by counting authentication failures
+      from a single source IP within a rolling 5-minute window. Fires when
+      10 or more failures are observed, indicating a systematic credential
+      stuffing or password-spray attack.
+    dataset_filter:
+      - unifi.auth
+      - unifi.ids_ips
+    condition:
+      field: event.outcome
+      value: failure
+      operator: eq
+      group_by: source.ip
+      threshold: 10
+      window_seconds: 300
+    severity: high
+    dedup_key: "brute_force:{source.ip}"
+    dedup_ttl_seconds: 3600
+    throttle_seconds: 900
+    title_template: "Brute Force Detected from {source.ip}"
+    body_template: >
+      UniSOC Sentinel detected a brute-force login attack.
+
+      Source IP:       {source.ip}
+      GeoIP Location:  {source.geo.city_name}, {source.geo.country_name}
+      Failure count:   {event_count} in 5 minutes
+      First seen:      {window_start}
+      Last seen:       {window_end}
+      Target device:   {observer.hostname}
+
+      Recommended actions:
+        1. Block {source.ip} at the perimeter firewall.
+        2. Check if any account was successfully authenticated from this IP
+           in the period immediately following the failures.
+        3. Review the affected accounts for signs of compromise.
+
+  # ---------------------------------------------------------------------------
+  # Rule 2 — Threat Management / IDS-IPS Alert
+  # ---------------------------------------------------------------------------
+  - id: threat_management_trigger
+    name: Threat Management Alert
+    description: >
+      Fires when the UniFi Threat Management engine (IDS/IPS) generates a
+      signature-matched alert indicating malicious traffic. Any single event
+      with a drop or alert action is sufficient to trigger notification.
+    dataset_filter:
+      - unifi.ids_ips
+      - unifi.threat_management
+    condition:
+      field: event.kind
+      value: alert
+      operator: eq
+      group_by: source.ip
+      threshold: 1
+      window_seconds: 60
+    severity: critical
+    dedup_key: "ids_ips:{source.ip}:{rule.name}"
+    dedup_ttl_seconds: 1800
+    throttle_seconds: 600
+    title_template: "IDS/IPS Alert: {rule.name} from {source.ip}"
+    body_template: >
+      UniSOC Sentinel — IDS/IPS signature match detected.
+
+      Rule:            {rule.name}
+      Category:        {rule.category}
+      Source IP:       {source.ip} ({source.geo.country_name})
+      Destination IP:  {destination.ip}:{destination.port}
+      Protocol:        {network.transport}
+      Action:          {event.action}
+      Signature ID:    {rule.id}
+      Device:          {observer.hostname}
+      Timestamp:       {@timestamp}
+
+      This event indicates traffic matching a known malicious pattern.
+      Review the source IP and destination service immediately.
+
+  # ---------------------------------------------------------------------------
+  # Rule 3 — Rogue Access Point Detection
+  # ---------------------------------------------------------------------------
+  - id: rogue_ap_detection
+    name: Rogue Access Point Detected
+    description: >
+      Detects when the UniFi wireless infrastructure identifies a rogue or
+      honeypot access point broadcasting an SSID that mimics a legitimate
+      network SSID. This could indicate an Evil Twin or man-in-the-middle
+      attack targeting wireless clients.
+    dataset_filter:
+      - unifi.wireless
+      - unifi.wids
+    condition:
+      field: event.action
+      value: rogue_ap_detected
+      operator: eq
+      group_by: network.name
+      threshold: 1
+      window_seconds: 120
+    severity: high
+    dedup_key: "rogue_ap:{source.mac}:{network.name}"
+    dedup_ttl_seconds: 7200
+    throttle_seconds: 3600
+    title_template: "Rogue AP Detected: SSID '{network.name}' from {source.mac}"
+    body_template: >
+      UniSOC Sentinel — Rogue Access Point Detected.
+
+      Rogue BSSID:     {source.mac}
+      Spoofed SSID:    {network.name}
+      Signal strength: {wireless.signal_strength} dBm
+      Channel:         {wireless.channel}
+      Detecting AP:    {observer.hostname} ({observer.mac})
+      Location:        {observer.geo.name}
+      First seen:      {@timestamp}
+
+      A rogue access point is broadcasting an SSID matching your network.
+      This may indicate an Evil Twin attack. Actions to take:
+        1. Locate the physical rogue device using the signal strength and
+           AP location data above.
+        2. Verify no client devices have associated with the rogue BSSID.
+        3. Contact your facilities/security team to investigate.
+
+  # ---------------------------------------------------------------------------
+  # Rule 4 — VPN Connection Anomaly
+  # ---------------------------------------------------------------------------
+  - id: vpn_anomaly
+    name: VPN Connection Anomaly
+    description: >
+      Detects anomalous VPN activity: either an unusual volume of VPN
+      connection attempts from a single IP within 10 minutes (potential
+      credential stuffing against the VPN gateway), or concurrent VPN
+      sessions from the same user account from geographically distant
+      locations (impossible travel).
+    dataset_filter:
+      - unifi.vpn
+      - unifi.remote_user_vpn
+    condition:
+      field: event.outcome
+      value: failure
+      operator: eq
+      group_by: source.ip
+      threshold: 5
+      window_seconds: 600
+    severity: medium
+    dedup_key: "vpn_anomaly:{source.ip}:{user.name}"
+    dedup_ttl_seconds: 3600
+    throttle_seconds: 1800
+    title_template: "VPN Anomaly: {event_count} failures from {source.ip} for user {user.name}"
+    body_template: >
+      UniSOC Sentinel — VPN Connection Anomaly Detected.
+
+      Source IP:       {source.ip} ({source.geo.city_name}, {source.geo.country_name})
+      User:            {user.name}
+      Failure count:   {event_count} in 10 minutes
+      VPN Gateway:     {observer.hostname}
+      Protocol:        {network.protocol}
+      First attempt:   {window_start}
+      Last attempt:    {window_end}
+
+      Repeated VPN authentication failures suggest a credential attack
+      against the VPN gateway. Review:
+        1. Whether {user.name} is a valid active account.
+        2. Whether the source IP is expected for this user.
+        3. Consider enforcing MFA on VPN authentication.
+
+  # ---------------------------------------------------------------------------
+  # Rule 5 — Bandwidth Spike / Data Exfiltration Indicator
+  # ---------------------------------------------------------------------------
+  - id: bandwidth_spike
+    name: Excessive Bandwidth Spike
+    description: >
+      Detects unusually high bandwidth usage by a single client device that
+      may indicate data exfiltration, compromised device, or unauthorised
+      media streaming. Triggers when a device transfers more than 1 GB in
+      a 5-minute window as measured by UniFi flow statistics.
+    dataset_filter:
+      - unifi.flows
+      - unifi.dpi
+    condition:
+      field: network.bytes
+      value: 1073741824
+      operator: gte
+      group_by: source.ip
+      threshold: 1
+      window_seconds: 300
+    severity: medium
+    dedup_key: "bandwidth_spike:{source.ip}"
+    dedup_ttl_seconds: 1800
+    throttle_seconds: 900
+    title_template: "Bandwidth Spike: {source.ip} transferred {network.bytes_human} in 5 min"
+    body_template: >
+      UniSOC Sentinel — Excessive Bandwidth Spike Detected.
+
+      Source IP:         {source.ip}
+      MAC Address:       {source.mac}
+      Device name:       {host.hostname}
+      Data transferred:  {network.bytes_human} in 5 minutes
+      Upload bytes:      {source.bytes_human}
+      Download bytes:    {destination.bytes_human}
+      Destination IPs:   {destination.ip}
+      Application:       {network.application}
+      Observed on:       {observer.hostname}
+      Time:              {@timestamp}
+
+      This volume of data transfer is abnormal. Investigate whether:
+        1. The device is authorised to transfer this volume.
+        2. The destination IPs are expected business endpoints.
+        3. The device may be compromised and exfiltrating data.
+
+  # ---------------------------------------------------------------------------
+  # Rule 6 — UniFi Device Offline
+  # ---------------------------------------------------------------------------
+  - id: device_offline
+    name: UniFi Device Offline
+    description: >
+      Fires when a managed UniFi device (AP, switch, or gateway) stops
+      sending heartbeat events to the controller and is reported as offline.
+      This may indicate a power failure, network connectivity issue, or
+      physical tampering with network infrastructure.
+    dataset_filter:
+      - unifi.device_events
+      - unifi.controller
+    condition:
+      field: event.action
+      value: device.disconnected
+      operator: eq
+      group_by: observer.hostname
+      threshold: 1
+      window_seconds: 120
+    severity: medium
+    dedup_key: "device_offline:{observer.hostname}"
+    dedup_ttl_seconds: 3600
+    throttle_seconds: 1800
+    title_template: "UniFi Device Offline: {observer.hostname} ({observer.type})"
+    body_template: >
+      UniSOC Sentinel — UniFi Network Device Offline.
+
+      Device:          {observer.hostname}
+      Device type:     {observer.type}
+      MAC address:     {observer.mac}
+      IP address:      {observer.ip}
+      Site:            {observer.geo.name}
+      Last seen:       {@timestamp}
+      Uptime before:   {observer.uptime_human}
+      Model:           {observer.product.name}
+
+      A managed network device has gone offline. This may affect:
+        - Wireless connectivity in the device's coverage area
+        - Network segment access if the device is a switch/gateway
+
+      Actions:
+        1. Verify physical connectivity and power status.
+        2. Check for recent configuration changes that may have caused a crash.
+        3. If the device is inaccessible, dispatch field support.
+
+  # ---------------------------------------------------------------------------
+  # Rule 7 — Critical Firewall Event
+  # ---------------------------------------------------------------------------
+  - id: critical_firewall_event
+    name: Critical Firewall Event
+    description: >
+      Detects high-volume port scanning or connection attempts blocked by the
+      UniFi gateway firewall. Triggers when more than 50 blocked connections
+      from the same source IP are observed within 2 minutes, indicating
+      reconnaissance or exploitation attempts against the network perimeter.
+    dataset_filter:
+      - unifi.firewall
+      - unifi.gateway
+    condition:
+      field: event.action
+      value: denied
+      operator: eq
+      group_by: source.ip
+      threshold: 50
+      window_seconds: 120
+    severity: high
+    dedup_key: "firewall_scan:{source.ip}"
+    dedup_ttl_seconds: 3600
+    throttle_seconds: 900
+    title_template: "Firewall: Port Scan Detected from {source.ip} ({event_count} blocked)"
+    body_template: >
+      UniSOC Sentinel — Critical Firewall Event: Possible Port Scan.
+
+      Source IP:         {source.ip}
+      GeoIP:             {source.geo.city_name}, {source.geo.country_name}
+      ASN:               {source.as.organization.name} (AS{source.as.number})
+      Blocked packets:   {event_count} in 2 minutes
+      Destination ports: {destination.ports_sampled}
+      Protocol:          {network.transport}
+      Firewall rule:     {rule.name}
+      Gateway:           {observer.hostname}
+      Time window:       {window_start} → {window_end}
+
+      Possible port scan or sweep attack from {source.ip}.
+      Recommended actions:
+        1. Add {source.ip} to the perimeter block list immediately.
+        2. Review gateway logs for any successful connections from this IP
+           before the block rule matched.
+        3. Check threat intelligence for {source.ip} reputation.
+        4. Consider GeoIP blocking if the source country is unexpected.

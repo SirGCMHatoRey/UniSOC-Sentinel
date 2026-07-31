@@ -1,0 +1,96 @@
+{% extends "base.html" %}
+
+{% block title %}[{{ alert.severity | upper }}] Threat Management: {{ alert.title }}{% endblock %}
+
+{% block content %}
+  <!-- Alert Title -->
+  <div class="section-label">Threat Management Alert</div>
+  <div class="alert-title">{{ alert.title }}</div>
+  <span class="severity-badge severity-{{ alert.severity | lower }}" style="margin-bottom:20px;display:inline-block;">
+    {{ alert.severity | upper }} Severity
+  </span>
+
+  <div class="divider"></div>
+
+  <!-- Threat name highlight -->
+  <div class="highlight-box" style="margin-bottom:20px;">
+    <div class="label">&#9888; Threat Identified</div>
+    <div class="value secondary" style="font-size:20px;word-break:break-word;">
+      {{ alert.metadata.get('threat_name', alert.title) }}
+    </div>
+  </div>
+
+  <!-- Action and affected hosts row -->
+  <div style="display:flex;gap:16px;margin-bottom:24px;flex-wrap:wrap;">
+    <div class="highlight-box" style="flex:1;min-width:160px;">
+      <div class="label">Action Taken</div>
+      <div class="value secondary" style="font-size:15px;">
+        {{ alert.metadata.get('action_taken', 'Under Investigation') }}
+      </div>
+    </div>
+    <div class="highlight-box" style="flex:1;min-width:160px;">
+      <div class="label">Affected Hosts</div>
+      <div class="value">{{ alert.metadata.get('affected_hosts', alert.event_count) }}</div>
+    </div>
+  </div>
+
+  <!-- Description -->
+  <div class="section-label">Description</div>
+  <p class="alert-description">{{ alert.description }}</p>
+
+  <div class="divider"></div>
+
+  <!-- Alert Properties -->
+  <div class="section-label" style="margin-bottom:12px;">Alert Properties</div>
+  <div class="info-grid">
+    <div class="info-row">
+      <div class="info-label">Alert ID</div>
+      <div class="info-value">{{ alert.id }}</div>
+    </div>
+    <div class="info-row">
+      <div class="info-label">Rule</div>
+      <div class="info-value">{{ alert.rule_name }}</div>
+    </div>
+    <div class="info-row">
+      <div class="info-label">Threat Name</div>
+      <div class="info-value">{{ alert.metadata.get('threat_name', 'Unknown') }}</div>
+    </div>
+    <div class="info-row">
+      <div class="info-label">Action Taken</div>
+      <div class="info-value">{{ alert.metadata.get('action_taken', 'None') }}</div>
+    </div>
+    <div class="info-row">
+      <div class="info-label">Affected Hosts</div>
+      <div class="info-value">{{ alert.metadata.get('affected_hosts', 'Unknown') }}</div>
+    </div>
+    <div class="info-row">
+      <div class="info-label">Event Count</div>
+      <div class="info-value">{{ alert.event_count }}</div>
+    </div>
+    <div class="info-row">
+      <div class="info-label">Detection Time</div>
+      <div class="info-value">{{ alert.created_at }}</div>
+    </div>
+    {% if alert.metadata.get('source_ip') %}
+    <div class="info-row">
+      <div class="info-label">Source IP</div>
+      <div class="info-value">{{ alert.metadata.get('source_ip') }}</div>
+    </div>
+    {% endif %}
+  </div>
+
+  {% if alert.metadata %}
+  <div class="divider"></div>
+  <div class="section-label" style="margin-bottom:12px;">Full Metadata</div>
+  <table class="metadata-table">
+    <thead>
+      <tr><th style="width:40%;">Field</th><th>Value</th></tr>
+    </thead>
+    <tbody>
+      {% for key, value in alert.metadata.items() %}
+      <tr><td>{{ key }}</td><td>{{ value }}</td></tr>
+      {% endfor %}
+    </tbody>
+  </table>
+  {% endif %}
+{% endblock %}

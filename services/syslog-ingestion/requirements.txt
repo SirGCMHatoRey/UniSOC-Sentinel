@@ -1,0 +1,5 @@
+redis[asyncio]==5.0.8
+aiohttp==3.9.5
+structlog==24.1.0
+pydantic-settings==2.3.4
+prometheus-client==0.20.0

@@ -1,0 +1,10 @@
+redis[asyncio]==5.0.8
+opensearch-py[async]==2.6.0
+geoip2==4.8.0
+user-agents==2.2.0
+aiohttp==3.9.5
+aiofiles==23.2.1
+structlog==24.1.0
+pydantic==2.7.4
+pydantic-settings==2.3.4
+prometheus-client==0.20.0

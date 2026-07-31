@@ -1,0 +1,156 @@
+# =============================================================================
+# UniSOC Sentinel — Threat Intelligence Feed Configuration
+# =============================================================================
+# Defines external threat intelligence feeds consumed by the parser-pipeline
+# service. Feeds are downloaded and cached locally; the parser enriches each
+# log event by checking source/destination IPs against the combined blocklist.
+#
+# Supported formats:
+#   plain_ip        — One IPv4/IPv6 address per line (comments with # ignored)
+#   plain_cidr      — One CIDR block per line
+#   csv_ip_port     — CSV with IP and port columns (first two non-comment cols)
+#   csv_ip_domain   — CSV with IP and domain columns
+#
+# Feed update scheduling:
+#   update_interval_hours is advisory — the parser-pipeline respects the
+#   interval but also checks the ETag / Last-Modified HTTP headers to avoid
+#   unnecessary downloads.
+# =============================================================================
+
+feeds:
+
+  # ---------------------------------------------------------------------------
+  # Feodo Tracker — Botnet C2 IPs (Emotet, QakBot, IcedID, etc.)
+  # ---------------------------------------------------------------------------
+  - name: feodo_tracker
+    description: >
+      Feodo Tracker tracks botnet command-and-control servers for Emotet,
+      QakBot (QBot), IcedID, Dridex, and TrickBot families. Maintained by
+      abuse.ch. Updated multiple times per day.
+    url: https://feodotracker.abuse.ch/downloads/ipblocklist.txt
+    format: plain_ip
+    local_path: /data/threat-intel/feodo.txt
+    update_interval_hours: 6
+    enabled: true
+    tags:
+      - botnet
+      - c2
+      - malware
+    confidence: high
+
+  # ---------------------------------------------------------------------------
+  # Emerging Threats — Compromised Hosts
+  # ---------------------------------------------------------------------------
+  - name: emerging_threats_compromised
+    description: >
+      Emerging Threats Compromised IPs list — hosts known to be actively
+      scanning, attacking, or relaying malicious traffic. Published by
+      Proofpoint / Emerging Threats, updated every 30 minutes.
+    url: https://rules.emergingthreats.net/blockrules/compromised-ips.txt
+    format: plain_ip
+    local_path: /data/threat-intel/emerging_threats.txt
+    update_interval_hours: 12
+    enabled: true
+    tags:
+      - compromised
+      - scanner
+      - attacker
+    confidence: medium
+
+  # ---------------------------------------------------------------------------
+  # Abuse.ch SSL Blacklist — IPs hosting malicious SSL certificates
+  # ---------------------------------------------------------------------------
+  - name: abuse_ch_sslbl
+    description: >
+      Abuse.ch SSL Blacklist (SSLBL) — IP addresses hosting SSL certificates
+      associated with malware C2 or phishing infrastructure. The CSV format
+      contains IP, port, and listing reason.
+    url: https://sslbl.abuse.ch/blacklist/sslipblacklist.csv
+    format: csv_ip_port
+    local_path: /data/threat-intel/sslbl.txt
+    update_interval_hours: 6
+    enabled: true
+    tags:
+      - malware
+      - ssl
+      - c2
+      - phishing
+    confidence: high
+
+  # ---------------------------------------------------------------------------
+  # Spamhaus DROP — Don't Route Or Peer CIDR blocks
+  # ---------------------------------------------------------------------------
+  - name: spamhaus_drop
+    description: >
+      Spamhaus DROP (Don't Route Or Peer) — CIDR blocks allocated to
+      cybercriminals and hijacked IP space. These networks have no legitimate
+      use and all traffic should be considered malicious.
+    url: https://www.spamhaus.org/drop/drop.txt
+    format: plain_cidr
+    local_path: /data/threat-intel/spamhaus_drop.txt
+    update_interval_hours: 24
+    enabled: true
+    tags:
+      - spam
+      - hijacked
+      - drop
+    confidence: high
+
+  # ---------------------------------------------------------------------------
+  # Spamhaus EDROP — Extended DROP (delegated suballocations)
+  # ---------------------------------------------------------------------------
+  - name: spamhaus_edrop
+    description: >
+      Spamhaus EDROP — Extension of DROP covering suballocated IP space
+      controlled by criminals. Should be used alongside DROP for full
+      coverage of hijacked address space.
+    url: https://www.spamhaus.org/drop/edrop.txt
+    format: plain_cidr
+    local_path: /data/threat-intel/spamhaus_edrop.txt
+    update_interval_hours: 24
+    enabled: true
+    tags:
+      - spam
+      - hijacked
+      - drop
+    confidence: high
+
+  # ---------------------------------------------------------------------------
+  # Abuse.ch URLhaus — IPs hosting malware distribution URLs
+  # ---------------------------------------------------------------------------
+  - name: abuse_ch_urlhaus
+    description: >
+      Abuse.ch URLhaus IP blocklist — IP addresses currently hosting URLs
+      that distribute malware payloads. Highly dynamic; updated frequently.
+      Contains only IPs with currently active malware URLs.
+    url: https://urlhaus.abuse.ch/downloads/json/
+    format: urlhaus_json
+    local_path: /data/threat-intel/urlhaus.json
+    update_interval_hours: 2
+    enabled: true
+    tags:
+      - malware
+      - distribution
+      - dropper
+    confidence: high
+
+  # ---------------------------------------------------------------------------
+  # Blocklist.de — Brute-Force Attack Sources
+  # ---------------------------------------------------------------------------
+  - name: blocklist_de_bruteforce
+    description: >
+      Blocklist.de aggregates IPs reported by honeypots and fail2ban instances
+      worldwide for brute-force attacks against SSH, RDP, SIP, SMTP, and
+      other services. Useful for correlating observed authentication failures
+      with known threat actors.
+    url: https://lists.blocklist.de/lists/all.txt
+    format: plain_ip
+    local_path: /data/threat-intel/blocklist_de.txt
+    update_interval_hours: 12
+    enabled: true
+    tags:
+      - bruteforce
+      - ssh
+      - rdp
+      - scanner
+    confidence: medium
