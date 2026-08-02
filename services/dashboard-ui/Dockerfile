@@ -5,7 +5,7 @@ RUN npm ci --frozen-lockfile
 COPY . .
 RUN npm run build
 
-FROM nginx:1.25-alpine
+FROM nginx:1.30.4-alpine
 RUN apk add --no-cache curl
 COPY --from=builder /app/dist /usr/share/nginx/html
 COPY nginx.conf /etc/nginx/conf.d/default.conf

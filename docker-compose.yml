@@ -99,7 +99,7 @@ services:
   # PostgreSQL — Relational DB for users, sessions, alerts, audit
   # -------------------------------------------------------------------------
   postgres:
-    image: postgres:16-alpine
+    image: postgres:18-alpine
     restart: unless-stopped
     environment:
       POSTGRES_USER: siem
