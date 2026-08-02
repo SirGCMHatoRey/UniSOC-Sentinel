@@ -42,8 +42,11 @@ class Alert(Base):
         nullable=True,
     )
     event_count: Mapped[int] = mapped_column(Integer, nullable=False, default=1)
-    # Arbitrary JSON metadata (source IP, matched events, etc.)
-    metadata: Mapped[dict | None] = mapped_column(JSONB, nullable=True)
+    # Arbitrary JSON metadata (source IP, matched events, etc.). Named
+    # metadata_ because `metadata` is reserved on DeclarativeBase subclasses
+    # (it's the MetaData registry) — mapped_column's first arg keeps the
+    # actual DB/JSON column name as "metadata".
+    metadata_: Mapped[dict | None] = mapped_column("metadata", JSONB, nullable=True)
 
     def __repr__(self) -> str:
         return (

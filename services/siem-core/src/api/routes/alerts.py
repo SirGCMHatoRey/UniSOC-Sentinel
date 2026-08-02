@@ -13,7 +13,7 @@ from typing import Any
 
 import structlog
 from fastapi import APIRouter, Depends, HTTPException, Query, status
-from pydantic import BaseModel
+from pydantic import BaseModel, Field
 from sqlalchemy import and_, select
 from sqlalchemy.ext.asyncio import AsyncSession
 
@@ -42,9 +42,11 @@ class AlertResponse(BaseModel):
     acknowledged_by: str | None
     acknowledged_at: datetime | None
     event_count: int
-    metadata: dict | None
+    # ORM attribute is metadata_ (see models/alert.py); keep the JSON key
+    # "metadata" for API consumers by reading from the renamed attribute.
+    metadata: dict | None = Field(default=None, validation_alias="metadata_")
 
-    model_config = {"from_attributes": True}
+    model_config = {"from_attributes": True, "populate_by_name": True}
 
 
 class AlertsListResponse(BaseModel):

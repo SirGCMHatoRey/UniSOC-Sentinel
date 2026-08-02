@@ -360,6 +360,11 @@ services:
         condition: service_healthy
       postgres:
         condition: service_healthy
+      # siem-core owns the alerts table schema (see services/alerting-engine
+      # /src/persistence.py) — wait for it to be healthy so the table exists
+      # before this service starts writing to it.
+      siem-core:
+        condition: service_healthy
     healthcheck:
       test: ["CMD-SHELL", "curl -sf http://localhost:8083/health"]
       interval: 15s

@@ -158,7 +158,7 @@ class CorrelationEngine:
             title=alert["title"],
             description=alert.get("description"),
             event_count=alert.get("event_count", 1),
-            metadata=alert.get("metadata"),
+            metadata_=alert.get("metadata"),
             created_at=datetime.now(timezone.utc),
         )
 
