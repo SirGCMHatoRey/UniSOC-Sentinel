@@ -153,7 +153,7 @@ rules:
   # ---------------------------------------------------------------------------
   # Rule 4 — VPN Connection Anomaly
   # ---------------------------------------------------------------------------
-  - id: vpn_anomaly
+  - id: vpn_auth_failures
     name: VPN Connection Anomaly
     description: >
       Detects anomalous VPN activity: either an unusual volume of VPN
@@ -172,7 +172,7 @@ rules:
       threshold: 5
       window_seconds: 600
     severity: medium
-    dedup_key: "vpn_anomaly:{source.ip}:{user.name}"
+    dedup_key: "vpn_auth_failures:{source.ip}:{user.name}"
     dedup_ttl_seconds: 3600
     throttle_seconds: 1800
     title_template: "VPN Anomaly: {event_count} failures from {source.ip} for user {user.name}"

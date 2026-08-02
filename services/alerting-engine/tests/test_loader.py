@@ -64,3 +64,25 @@ def test_load_real_alert_rules_bandwidth_spike_uses_gte() -> None:
     by_id = {rule.id: rule for rule in rules}
     assert by_id["bandwidth_spike"].condition.operator == "gte"
     assert str(by_id["bandwidth_spike"].condition.value) == "1073741824"
+
+
+def test_load_real_alert_rules_has_no_vpn_anomaly_id() -> None:
+    # vpn_anomaly is the correlation-engine's (siem-core) geo-anomaly rule id.
+    # The alerting-engine's threshold-based VPN rule must not collide with it
+    # (see issue #5) — it was renamed to vpn_auth_failures.
+    rules = load_rules(str(REAL_RULES_PATH))
+    ids = {rule.id for rule in rules}
+    assert "vpn_anomaly" not in ids
+
+
+def test_load_real_alert_rules_vpn_auth_failures_preserves_detection_logic() -> None:
+    rules = load_rules(str(REAL_RULES_PATH))
+    by_id = {rule.id: rule for rule in rules}
+    assert "vpn_auth_failures" in by_id
+
+    rule = by_id["vpn_auth_failures"]
+    assert "unifi.vpn" in rule.dataset_filter
+    assert "unifi.remote_user_vpn" in rule.dataset_filter
+    assert rule.condition.field == "event.outcome"
+    assert str(rule.condition.value) == "failure"
+    assert rule.condition.threshold == 5

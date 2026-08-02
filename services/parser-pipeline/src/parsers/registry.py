@@ -49,53 +49,39 @@ class ParserRegistry:
         return f"ParserRegistry({[type(p).__name__ for p in self._parsers]})"
 
 
+# ---------------------------------------------------------------------------
+# Parser classification precedence.
+#
+# This is the single source of truth for parser registration order. When two
+# parsers' `can_parse()` checks overlap on the same input, the one listed
+# first here wins. Adding a new parser means adding an entry here — its
+# position (and the reason for that position) must be stated explicitly;
+# there is no other place ordering is decided.
+# ---------------------------------------------------------------------------
+_PARSER_PRIORITY: list[tuple[type[BaseParser], str]] = [
+    (IDSIPSParser, "very specific signatures, check early to avoid FP with firewall"),
+    (ThreatParser, "ubnt-specific threat blocking keywords"),
+    (FirewallParser, "iptables/UFW/ACL rules; very common, must follow IDS"),
+    (AuthParser, "SSH/PAM authentication events"),
+    (VPNParser, "OpenVPN / StrongSwan / L2TP"),
+    (WirelessParser, "hostapd 802.11 events"),
+    (DHCPParser, "dnsmasq DHCP messages (very distinctive keywords)"),
+    (DNSParser, "dnsmasq query/reply messages"),
+    (TrafficParser, "connection tracking / netflow"),
+    (WANParser, "PPPoE / DHCP WAN / link events on WAN interfaces"),
+    (PortParser, "switch port / STP / VLAN events"),
+    (DeviceParser, "UniFi device adoption / provisioning"),
+    (AdminParser, "UniFi admin login / settings change"),
+    (SystemParser, "kernel OOM / service events (broad; near end to avoid FP)"),
+]
+
+
 def build_default_registry() -> ParserRegistry:
     """
-    Build and return the default parser registry with all 15 parsers registered
-    in priority order (most specific / high-signal first).
+    Build and return the default parser registry with all 14 parsers registered
+    in priority order (most specific / high-signal first), per _PARSER_PRIORITY.
     """
     registry = ParserRegistry()
-
-    # 1. IDS/IPS — very specific signatures, check early to avoid FP with firewall
-    registry.register(IDSIPSParser())
-
-    # 2. Threat management — ubnt-specific threat blocking keywords
-    registry.register(ThreatParser())
-
-    # 3. Firewall — iptables/UFW/ACL rules; very common, must follow IDS
-    registry.register(FirewallParser())
-
-    # 4. Auth — SSH/PAM authentication events
-    registry.register(AuthParser())
-
-    # 5. VPN — OpenVPN / StrongSwan / L2TP
-    registry.register(VPNParser())
-
-    # 6. Wireless — hostapd 802.11 events
-    registry.register(WirelessParser())
-
-    # 7. DHCP — dnsmasq DHCP messages (very distinctive keywords)
-    registry.register(DHCPParser())
-
-    # 8. DNS — dnsmasq query/reply messages
-    registry.register(DNSParser())
-
-    # 9. Traffic — connection tracking / netflow
-    registry.register(TrafficParser())
-
-    # 10. WAN — PPPoE / DHCP WAN / link events on WAN interfaces
-    registry.register(WANParser())
-
-    # 11. Port — switch port / STP / VLAN events
-    registry.register(PortParser())
-
-    # 12. Device — UniFi device adoption / provisioning
-    registry.register(DeviceParser())
-
-    # 13. Admin — UniFi admin login / settings change
-    registry.register(AdminParser())
-
-    # 14. System — kernel OOM / service events (broad; near end to avoid FP)
-    registry.register(SystemParser())
-
+    for parser_cls, _reason in _PARSER_PRIORITY:
+        registry.register(parser_cls())
     return registry
