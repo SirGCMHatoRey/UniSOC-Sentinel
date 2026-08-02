@@ -84,3 +84,24 @@ When building, produce all of these:
 - **Read spec before implementing**: All decisions should trace to `prompt.txt`. If a requirement is infeasible or contradictory, state it explicitly rather than silently bypassing.
 - **No scope creep**: Implement only what is requested or clearly necessary per spec.
 - **No over-engineering**: No helpers/abstractions for one-time operations, no error handling for impossible scenarios.
+
+## Agent skills
+
+### Issue tracker
+
+GitHub Issues via `gh` CLI (`SirGCMHatoRey/UniSOC-Sentinel`). See `docs/agents/issue-tracker.md`.
+
+### Triage labels
+
+Default vocabulary — `needs-triage`, `needs-info`, `ready-for-agent`, `ready-for-human`, `wontfix`. See `docs/agents/triage-labels.md`.
+
+### Domain docs
+
+Single-context — `CONTEXT.md` + `docs/adr/` at repo root. See `docs/agents/domain.md`.
+
+## Versioning & git (project convention — satisfies spec's "skill or memory")
+
+After a plan/milestone is completed and `corepack pnpm check` passes:
+**commit everything** with a Conventional Commit message and bump **SemVer**
+(`MAJOR.MINOR.PATCH`); tag releases (`vX.Y.Z`). Foundation milestone = `v0.1.0`.
+See `SKILLS.md` for the full workflow.
