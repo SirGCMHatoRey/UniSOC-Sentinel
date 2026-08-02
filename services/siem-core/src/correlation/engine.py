@@ -29,6 +29,7 @@ log = structlog.get_logger(__name__)
 
 _STREAM_KEY = "siem:parsed_logs"
 _LIVE_CHANNEL = "siem:live_stream"
+_NOTIFICATION_CHANNEL = "siem:alert_notifications"
 _READ_COUNT = 100
 _BLOCK_MS = 1000  # block for 1s waiting for new messages
 
@@ -127,6 +128,7 @@ class CorrelationEngine:
             try:
                 alert = await rule.evaluate(event, self._redis)
                 if alert is not None:
+                    alert["id"] = str(uuid.uuid4())
                     log.info(
                         "Correlation rule triggered",
                         rule_id=rule.rule_id,
@@ -134,6 +136,7 @@ class CorrelationEngine:
                     )
                     await self._persist_alert(alert)
                     await self._publish_alert(alert)
+                    await self._notify_alert(alert)
             except asyncio.CancelledError:
                 raise  # propagate cancellation
             except Exception as exc:
@@ -148,7 +151,7 @@ class CorrelationEngine:
         from src.models.alert import Alert
 
         record = Alert(
-            id=str(uuid.uuid4()),
+            id=alert["id"],
             rule_id=alert["rule_id"],
             rule_name=alert["rule_name"],
             severity=alert["severity"],
@@ -181,6 +184,21 @@ class CorrelationEngine:
             await self._redis.publish(_LIVE_CHANNEL, payload)
         except Exception as exc:
             log.error("Failed to publish alert to Redis", error=str(exc))
+
+    async def _notify_alert(self, alert: dict[str, Any]) -> None:
+        """
+        Publish the bare alert dict to the notification channel consumed by
+        email-notifier. Unlike _publish_alert, this is NOT wrapped in a
+        {"type": ..., "data": ...} envelope — email-notifier reads fields
+        (id, rule_id, severity, title, ...) directly off the top-level JSON.
+        """
+        try:
+            payload = json.dumps(
+                {**alert, "created_at": datetime.now(timezone.utc).isoformat()}
+            )
+            await self._redis.publish(_NOTIFICATION_CHANNEL, payload)
+        except Exception as exc:
+            log.error("Failed to publish alert notification to Redis", error=str(exc))
 
     def stop(self) -> None:
         """Signal the engine to stop after the current iteration."""

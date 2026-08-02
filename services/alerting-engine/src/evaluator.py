@@ -17,6 +17,7 @@ for the typical cardinalities seen in a SIEM sliding window.
 
 from __future__ import annotations
 
+import re
 import time
 import uuid
 from datetime import datetime, timezone
@@ -26,7 +27,7 @@ from redis.asyncio import Redis
 
 from .deduplicator import AlertDeduplicator
 from .metrics import Metrics
-from .rules.loader import AlertRule
+from .rules.loader import AlertRule, Operator
 from .throttler import AlertThrottler
 
 log: structlog.stdlib.BoundLogger = structlog.get_logger(__name__)
@@ -97,7 +98,9 @@ class RuleEvaluator:
                 # Step 2: field condition check
                 if rule.condition.value is not None:
                     field_value = self._get_nested(event, rule.condition.field)
-                    if str(field_value) != str(rule.condition.value):
+                    if not self._condition_matches(
+                        field_value, rule.condition.operator, rule.condition.value
+                    ):
                         continue
 
                 # Step 3: extract group_by value
@@ -206,6 +209,54 @@ class RuleEvaluator:
         # results[2] is the ZCARD return value
         count: int = results[2]
         return count
+
+    def _condition_matches(self, field_value: object, operator: Operator, expected: object) -> bool:
+        """
+        Test *field_value* against *expected* using *operator*.
+
+        Args:
+            field_value: Value extracted from the event via dot-notation path
+                        (may be None if the field is absent).
+            operator:    One of the operators in rules.loader.VALID_OPERATORS.
+            expected:    The condition's configured value to compare against.
+
+        Returns:
+            True if the condition matches, False otherwise. Malformed or
+            missing data (e.g. a non-numeric field value against a numeric
+            operator) is treated as a non-match rather than raised, since
+            event data is untrusted input.
+        """
+        if operator == "eq":
+            return str(field_value) == str(expected)
+        if operator == "ne":
+            return str(field_value) != str(expected)
+        if operator == "contains":
+            if field_value is None:
+                return False
+            return str(expected) in str(field_value)
+        if operator == "regex":
+            if field_value is None:
+                return False
+            try:
+                return re.search(str(expected), str(field_value)) is not None
+            except re.error:
+                return False
+        if operator in ("gt", "gte", "lt", "lte"):
+            try:
+                actual_num = float(field_value)  # type: ignore[arg-type]
+                expected_num = float(expected)  # type: ignore[arg-type]
+            except (TypeError, ValueError):
+                return False
+            if operator == "gt":
+                return actual_num > expected_num
+            if operator == "gte":
+                return actual_num >= expected_num
+            if operator == "lt":
+                return actual_num < expected_num
+            return actual_num <= expected_num
+        # Unreachable: RuleCondition.__post_init__ validates operator at
+        # rule-load time against the same VALID_OPERATORS set.
+        return False
 
     def _get_nested(self, obj: dict, path: str):
         """
