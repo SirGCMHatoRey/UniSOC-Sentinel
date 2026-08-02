@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react'
+import React from 'react'
 import { useQuery } from '@tanstack/react-query'
 import { MapContainer, TileLayer, CircleMarker, Tooltip } from 'react-leaflet'
 import 'leaflet/dist/leaflet.css'
@@ -23,7 +23,7 @@ const GeoIPMap: React.FC = () => {
   })
 
   if (isLoading) return <div className="flex justify-center py-8"><LoadingSpinner /></div>
-  if (error) return <div className="text-siem-red text-sm">Failed to load geo data</div>
+  if (error) return <div className="text-threat text-sm">Failed to load geo data</div>
 
   const points = data ?? []
   const maxCount = Math.max(...points.map((p) => p.count), 1)
@@ -32,7 +32,7 @@ const GeoIPMap: React.FC = () => {
     <MapContainer
       center={[20, 0]}
       zoom={2}
-      style={{ height: 280, width: '100%', borderRadius: 8 }}
+      style={{ height: 280, width: '100%' }}
       scrollWheelZoom={false}
     >
       <TileLayer
@@ -49,8 +49,8 @@ const GeoIPMap: React.FC = () => {
             center={[point.lat, point.lon]}
             radius={radius}
             pathOptions={{
-              color: '#ef4444',
-              fillColor: '#ef4444',
+              color: '#ff4d4d',
+              fillColor: '#ff4d4d',
               fillOpacity: 0.6,
               weight: 1,
             }}

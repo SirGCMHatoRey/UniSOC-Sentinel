@@ -6,7 +6,7 @@ import ErrorBoundary from '@/components/common/ErrorBoundary'
 
 const Layout: React.FC = () => {
   return (
-    <div className="flex h-screen w-screen overflow-hidden bg-siem-bg text-white">
+    <div className="flex h-screen w-screen overflow-hidden bg-void text-ink">
       <Sidebar />
       <div className="flex flex-col flex-1 min-w-0">
         <Header />

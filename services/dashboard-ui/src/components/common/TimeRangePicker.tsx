@@ -26,7 +26,7 @@ const TimeRangePicker: React.FC<TimeRangePickerProps> = ({ value, onChange }) =>
     <select
       value={value}
       onChange={handleChange}
-      className="bg-siem-surface border border-siem-border text-gray-200 text-sm rounded-md px-3 py-1.5 focus:outline-none focus:ring-1 focus:ring-siem-accent"
+      className="bg-panel border border-hairline text-ink text-sm px-3 py-1.5 focus:outline-none focus:ring-1 focus:ring-signal"
     >
       {options.map((opt) => (
         <option key={opt.value} value={opt.value}>

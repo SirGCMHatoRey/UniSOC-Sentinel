@@ -24,8 +24,8 @@ interface WidgetProps {
 }
 
 const Widget: React.FC<WidgetProps> = ({ title, children, className = '' }) => (
-  <div className={`bg-siem-surface border border-siem-border rounded-lg p-4 ${className}`}>
-    <h3 className="text-sm font-semibold text-gray-400 uppercase tracking-wider mb-4">{title}</h3>
+  <div className={`bg-panel border border-hairline p-4 ${className}`}>
+    <h3 className="text-xs font-semibold text-ink-dim uppercase tracking-widest mb-4">{title}</h3>
     <ErrorBoundary>
       {children}
     </ErrorBoundary>

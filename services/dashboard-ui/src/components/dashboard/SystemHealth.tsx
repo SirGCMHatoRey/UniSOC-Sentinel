@@ -7,9 +7,9 @@ import { SystemHealth as SystemHealthType } from '@/types'
 type HealthStatus = 'healthy' | 'degraded' | 'down'
 
 const statusDot: Record<HealthStatus, string> = {
-  healthy: 'bg-siem-green',
-  degraded: 'bg-siem-yellow',
-  down: 'bg-siem-red',
+  healthy: 'bg-ok',
+  degraded: 'bg-warn',
+  down: 'bg-threat',
 }
 
 const statusLabel: Record<HealthStatus, string> = {
@@ -19,9 +19,9 @@ const statusLabel: Record<HealthStatus, string> = {
 }
 
 const statusTextColor: Record<HealthStatus, string> = {
-  healthy: 'text-siem-green',
-  degraded: 'text-siem-yellow',
-  down: 'text-siem-red',
+  healthy: 'text-ok',
+  degraded: 'text-warn',
+  down: 'text-threat',
 }
 
 interface ServiceRowProps {
@@ -30,12 +30,16 @@ interface ServiceRowProps {
 }
 
 const ServiceRow: React.FC<ServiceRowProps> = ({ name, status }) => (
-  <div className="flex items-center justify-between py-2 border-b border-siem-border last:border-0">
+  <div className="flex items-center justify-between py-2 border-b border-hairline last:border-0">
     <div className="flex items-center gap-2">
-      <span className={`w-2.5 h-2.5 rounded-full flex-shrink-0 ${statusDot[status]}`} />
-      <span className="text-sm text-gray-300">{name}</span>
+      <span
+        className={`w-2 h-2 rounded-full flex-shrink-0 ${statusDot[status]} ${
+          status === 'down' ? 'animate-pulse-dot' : ''
+        }`}
+      />
+      <span className="text-sm text-ink">{name}</span>
     </div>
-    <span className={`text-xs font-medium ${statusTextColor[status]}`}>
+    <span className={`text-xs font-medium uppercase tracking-wide ${statusTextColor[status]}`}>
       {statusLabel[status]}
     </span>
   </div>
@@ -49,7 +53,7 @@ const SystemHealth: React.FC = () => {
   })
 
   if (isLoading) return <div className="flex justify-center py-4"><LoadingSpinner /></div>
-  if (error) return <div className="text-siem-red text-sm">Failed to load system health</div>
+  if (error) return <div className="text-threat text-sm">Failed to load system health</div>
 
   if (!data) return null
 

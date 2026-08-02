@@ -12,7 +12,7 @@ const WirelessActivity: React.FC = () => {
   })
 
   if (isLoading) return <div className="flex justify-center py-4"><LoadingSpinner /></div>
-  if (error) return <div className="text-siem-red text-sm">Failed to load wireless activity</div>
+  if (error) return <div className="text-threat text-sm">Failed to load wireless activity</div>
 
   const events = data ?? []
 
@@ -20,25 +20,25 @@ const WirelessActivity: React.FC = () => {
     <div className="overflow-x-auto">
       <table className="w-full text-sm">
         <thead>
-          <tr className="text-gray-400 border-b border-siem-border">
+          <tr className="text-ink-dim border-b border-hairline uppercase text-xs tracking-wide">
             <th className="pb-2 text-left font-medium">Timestamp</th>
             <th className="pb-2 text-left font-medium">MAC</th>
             <th className="pb-2 text-left font-medium">SSID</th>
             <th className="pb-2 text-left font-medium">Event</th>
           </tr>
         </thead>
-        <tbody className="divide-y divide-siem-border">
+        <tbody className="divide-y divide-hairline">
           {events.slice(0, 10).map((e, i) => (
-            <tr key={i} className="hover:bg-siem-border/30 transition-colors">
-              <td className="py-2 text-gray-400 text-xs">{formatDate(e.timestamp)}</td>
-              <td className="py-2 font-mono text-gray-300 text-xs">{e.mac}</td>
-              <td className="py-2 text-white">{e.ssid}</td>
+            <tr key={i} className="hover:bg-hairline/30 transition-colors">
+              <td className="py-2 text-ink-dim text-xs">{formatDate(e.timestamp)}</td>
+              <td className="py-2 text-ink text-xs">{e.mac}</td>
+              <td className="py-2 text-ink">{e.ssid}</td>
               <td className="py-2">
                 <span
-                  className={`text-xs px-2 py-0.5 rounded-full ${
+                  className={`text-xs px-2 py-0.5 border ${
                     e.event_type === 'association'
-                      ? 'bg-siem-green/20 text-siem-green'
-                      : 'bg-siem-orange/20 text-siem-orange'
+                      ? 'border-ok/40 text-ok'
+                      : 'border-warn/40 text-warn'
                   }`}
                 >
                   {e.event_type}
@@ -48,7 +48,7 @@ const WirelessActivity: React.FC = () => {
           ))}
           {events.length === 0 && (
             <tr>
-              <td colSpan={4} className="py-4 text-center text-gray-500">No wireless events</td>
+              <td colSpan={4} className="py-4 text-center text-ink-dim">No wireless events</td>
             </tr>
           )}
         </tbody>

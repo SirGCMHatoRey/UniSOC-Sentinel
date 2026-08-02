@@ -31,16 +31,13 @@ export function formatSeverity(s: string): string {
 export function getSeverityColor(s: string): string {
   switch (s.toLowerCase()) {
     case 'critical':
-      return '#ef4444'
     case 'high':
-      return '#f97316'
+      return '#ff4d4d'
     case 'medium':
-      return '#eab308'
+      return '#ffcc66'
     case 'low':
-      return '#3b82f6'
-    case 'info':
-      return '#22c55e'
+      return '#5eff8f'
     default:
-      return '#6b7280'
+      return '#7d8c7a'
   }
 }

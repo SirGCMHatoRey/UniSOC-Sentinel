@@ -1,33 +1,43 @@
-export function severityToClass(s: string): string {
+// Severity is shown as an ascending signal-strength meter (1-5 bars), not a
+// pill badge — see SeverityBadge. These map the five canonical severity
+// tiers to bar count and color.
+
+const LEVELS: Record<string, number> = {
+  critical: 5,
+  high: 4,
+  medium: 3,
+  low: 2,
+  info: 1,
+}
+
+export function severityToLevel(s: string): number {
+  return LEVELS[s.toLowerCase()] ?? 1
+}
+
+export function severityToBarColor(s: string): string {
   switch (s.toLowerCase()) {
     case 'critical':
-      return 'bg-siem-red text-white'
     case 'high':
-      return 'bg-siem-orange text-white'
+      return 'bg-threat'
     case 'medium':
-      return 'bg-siem-yellow text-black'
+      return 'bg-warn'
     case 'low':
-      return 'bg-siem-blue text-white'
-    case 'info':
-      return 'bg-siem-green text-black'
+      return 'bg-ok'
     default:
-      return 'bg-gray-600 text-white'
+      return 'bg-ink-dim'
   }
 }
 
-export function severityToBorderClass(s: string): string {
+export function severityToTextClass(s: string): string {
   switch (s.toLowerCase()) {
     case 'critical':
-      return 'border-siem-red'
     case 'high':
-      return 'border-siem-orange'
+      return 'text-threat'
     case 'medium':
-      return 'border-siem-yellow'
+      return 'text-warn'
     case 'low':
-      return 'border-siem-blue'
-    case 'info':
-      return 'border-siem-green'
+      return 'text-ok'
     default:
-      return 'border-gray-600'
+      return 'text-ink-dim'
   }
 }

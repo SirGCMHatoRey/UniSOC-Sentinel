@@ -26,22 +26,22 @@ const BlockedConnections: React.FC<BlockedConnectionsProps> = ({ fromTs, toTs })
     <div>
       <div className="mb-3">
         {isLoading ? (
-          <p className="text-2xl font-bold text-siem-red">...</p>
+          <p className="text-2xl font-bold text-threat">...</p>
         ) : (
-          <p className="text-3xl font-bold text-siem-red">{total.toLocaleString()}</p>
+          <p className="text-3xl font-bold text-threat tabular-nums">{total.toLocaleString()}</p>
         )}
-        <p className="text-xs text-gray-500 mt-0.5">blocked in selected period</p>
+        <p className="text-xs text-ink-dim mt-0.5 uppercase tracking-wide">blocked in selected period</p>
       </div>
       <ResponsiveContainer width="100%" height={80}>
         <LineChart data={chartData} margin={{ top: 2, right: 0, left: 0, bottom: 2 }}>
           <XAxis dataKey="time" hide />
           <YAxis hide />
           <Tooltip
-            contentStyle={{ backgroundColor: '#1a1d27', border: '1px solid #2a2d3a', borderRadius: 4, fontSize: 11 }}
-            labelStyle={{ color: '#e5e7eb' }}
-            itemStyle={{ color: '#ef4444' }}
+            contentStyle={{ backgroundColor: '#12160f', border: '1px solid #263026', borderRadius: 0, fontSize: 11 }}
+            labelStyle={{ color: '#d7e0d3' }}
+            itemStyle={{ color: '#ff4d4d' }}
           />
-          <Line type="monotone" dataKey="deny" stroke="#ef4444" strokeWidth={2} dot={false} name="Blocked" />
+          <Line type="monotone" dataKey="deny" stroke="#ff4d4d" strokeWidth={2} dot={false} name="Blocked" />
         </LineChart>
       </ResponsiveContainer>
     </div>

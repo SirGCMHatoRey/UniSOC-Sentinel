@@ -21,7 +21,7 @@ const ThreatOverview: React.FC = () => {
 
   if (error || !data) {
     return (
-      <div className="col-span-full text-center text-siem-red py-4">
+      <div className="col-span-full text-center text-threat py-4">
         Failed to load stats
       </div>
     )
@@ -29,42 +29,12 @@ const ThreatOverview: React.FC = () => {
 
   return (
     <>
-      <StatCard
-        title="Total Events"
-        value={data.total_events}
-        variant="blue"
-        icon="📊"
-      />
-      <StatCard
-        title="Active Alerts"
-        value={data.total_alerts}
-        variant="orange"
-        icon="⚡"
-      />
-      <StatCard
-        title="Blocked Connections"
-        value={data.blocked_connections}
-        variant="red"
-        icon="🚫"
-      />
-      <StatCard
-        title="Auth Failures"
-        value={data.auth_failures}
-        variant="yellow"
-        icon="🔐"
-      />
-      <StatCard
-        title="Active VPN Sessions"
-        value={data.active_vpn_sessions}
-        variant="green"
-        icon="🔒"
-      />
-      <StatCard
-        title="Threat Intel Matches"
-        value={data.threat_intel_matches}
-        variant="red"
-        icon="🎯"
-      />
+      <StatCard title="Total Events" value={data.total_events} variant="signal" />
+      <StatCard title="Active Alerts" value={data.total_alerts} variant="warn" />
+      <StatCard title="Blocked Connections" value={data.blocked_connections} variant="threat" />
+      <StatCard title="Auth Failures" value={data.auth_failures} variant="warn" />
+      <StatCard title="Active VPN Sessions" value={data.active_vpn_sessions} variant="ok" />
+      <StatCard title="Threat Intel Matches" value={data.threat_intel_matches} variant="threat" />
     </>
   )
 }

@@ -34,7 +34,7 @@ const FailedAuthAttempts: React.FC<FailedAuthAttemptsProps> = ({ fromTs, toTs })
   })
 
   if (isLoading) return <div className="flex justify-center py-8"><LoadingSpinner /></div>
-  if (error) return <div className="text-siem-red text-sm">Failed to load auth data</div>
+  if (error) return <div className="text-threat text-sm">Failed to load auth data</div>
 
   const chartData = (data ?? []).map((d) => ({
     hour: format(new Date(d.timestamp), 'HH:mm'),
@@ -44,16 +44,16 @@ const FailedAuthAttempts: React.FC<FailedAuthAttemptsProps> = ({ fromTs, toTs })
   return (
     <ResponsiveContainer width="100%" height={220}>
       <BarChart data={chartData} margin={{ top: 5, right: 10, left: 0, bottom: 5 }}>
-        <CartesianGrid strokeDasharray="3 3" stroke="#2a2d3a" />
-        <XAxis dataKey="hour" stroke="#6b7280" tick={{ fill: '#9ca3af', fontSize: 11 }} />
-        <YAxis stroke="#6b7280" tick={{ fill: '#9ca3af', fontSize: 11 }} />
+        <CartesianGrid strokeDasharray="3 3" stroke="#263026" />
+        <XAxis dataKey="hour" stroke="#7d8c7a" tick={{ fill: '#7d8c7a', fontSize: 11 }} />
+        <YAxis stroke="#7d8c7a" tick={{ fill: '#7d8c7a', fontSize: 11 }} />
         <Tooltip
-          contentStyle={{ backgroundColor: '#1a1d27', border: '1px solid #2a2d3a', borderRadius: 6 }}
-          labelStyle={{ color: '#e5e7eb' }}
-          itemStyle={{ color: '#eab308' }}
+          contentStyle={{ backgroundColor: '#12160f', border: '1px solid #263026', borderRadius: 0 }}
+          labelStyle={{ color: '#d7e0d3' }}
+          itemStyle={{ color: '#ffcc66' }}
           formatter={(value: number) => [value, 'Failed Attempts']}
         />
-        <Bar dataKey="value" fill="#eab308" name="Failed Attempts" radius={[2, 2, 0, 0]} />
+        <Bar dataKey="value" fill="#ffcc66" name="Failed Attempts" radius={[0, 0, 0, 0]} />
       </BarChart>
     </ResponsiveContainer>
   )

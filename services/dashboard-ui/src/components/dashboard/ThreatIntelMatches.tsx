@@ -12,7 +12,7 @@ const ThreatIntelMatches: React.FC = () => {
   })
 
   if (isLoading) return <div className="flex justify-center py-4"><LoadingSpinner /></div>
-  if (error) return <div className="text-siem-red text-sm">Failed to load threat intel data</div>
+  if (error) return <div className="text-threat text-sm">Failed to load threat intel data</div>
 
   const matches = data ?? []
 
@@ -20,7 +20,7 @@ const ThreatIntelMatches: React.FC = () => {
     <div className="overflow-x-auto">
       <table className="w-full text-sm">
         <thead>
-          <tr className="text-gray-400 border-b border-siem-border">
+          <tr className="text-ink-dim border-b border-hairline uppercase text-xs tracking-wide">
             <th className="pb-2 text-left font-medium">IP</th>
             <th className="pb-2 text-left font-medium">Feed</th>
             <th className="pb-2 text-left font-medium">Country</th>
@@ -28,33 +28,33 @@ const ThreatIntelMatches: React.FC = () => {
             <th className="pb-2 text-right font-medium">Time</th>
           </tr>
         </thead>
-        <tbody className="divide-y divide-siem-border">
+        <tbody className="divide-y divide-hairline">
           {matches.slice(0, 10).map((m, i) => (
-            <tr key={i} className="hover:bg-siem-border/30 transition-colors">
-              <td className="py-2 font-mono text-siem-red">{m.ip}</td>
-              <td className="py-2 text-gray-300">{m.feed}</td>
-              <td className="py-2 text-gray-400">{m.country}</td>
+            <tr key={i} className="hover:bg-hairline/30 transition-colors">
+              <td className="py-2 text-threat">{m.ip}</td>
+              <td className="py-2 text-ink-dim">{m.feed}</td>
+              <td className="py-2 text-ink-dim">{m.country}</td>
               <td className="py-2 text-right">
                 <span
-                  className={`text-xs font-bold ${
+                  className={`text-xs font-bold tabular-nums ${
                     m.score >= 80
-                      ? 'text-siem-red'
+                      ? 'text-threat'
                       : m.score >= 50
-                      ? 'text-siem-orange'
-                      : 'text-siem-yellow'
+                      ? 'text-warn'
+                      : 'text-ink-dim'
                   }`}
                 >
                   {m.score}
                 </span>
               </td>
-              <td className="py-2 text-right text-gray-500 text-xs">
+              <td className="py-2 text-right text-ink-dim text-xs">
                 {formatRelativeTime(m.timestamp)}
               </td>
             </tr>
           ))}
           {matches.length === 0 && (
             <tr>
-              <td colSpan={5} className="py-4 text-center text-gray-500">No matches</td>
+              <td colSpan={5} className="py-4 text-center text-ink-dim">No matches</td>
             </tr>
           )}
         </tbody>

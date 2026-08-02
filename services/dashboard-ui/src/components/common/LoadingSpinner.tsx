@@ -14,7 +14,7 @@ const sizeMap = {
 const LoadingSpinner: React.FC<LoadingSpinnerProps> = ({ size = 'md', className = '' }) => {
   return (
     <div
-      className={`animate-spin rounded-full border-siem-accent border-t-transparent ${sizeMap[size]} ${className}`}
+      className={`animate-spin rounded-full border-signal border-t-transparent ${sizeMap[size]} ${className}`}
       role="status"
       aria-label="Loading"
     />
